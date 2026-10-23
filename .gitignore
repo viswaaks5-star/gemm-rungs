@@ -1,0 +1,9 @@
+# build output
+bin/
+# binary profiler reports: megabytes each and permanent in git history.
+# Readable exports go in each rung's results/ instead.
+profiles/
+*.ncu-rep
+*.nsys-rep
+*.sqlite
+__pycache__/

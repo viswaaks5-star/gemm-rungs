@@ -1,0 +1,36 @@
+# No GPU here, so CI proves what it can without one: the tools are tested, the driver's
+# checks are tested on a CPU mock, and the whole ladder compiles for sm_89 with nvcc.
+# Correctness and speed on the GPU are the job of bin/sgemm itself.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  tools:
+    name: tools (python)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m unittest discover -s tools -p "test_*.py" -v
+
+  driver:
+    name: driver checks on a CPU mock
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - run: command -v clang++-18 || (sudo apt-get update -qq && sudo apt-get install -y -qq clang-18)
+      - run: bash tests/mock/run_tests.sh
+        env:
+          CXX: clang++-18
+
+  build:
+    name: nvcc build for sm_89
+    runs-on: ubuntu-24.04
+    container: nvidia/cuda:13.0.3-devel-ubuntu24.04
+    steps:
+      - run: apt-get update -qq && apt-get install -y -qq --no-install-recommends git make ca-certificates
+      - uses: actions/checkout@v4
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - run: make SM=sm_89

@@ -1,0 +1,4 @@
+# LF everywhere. Edited from Windows, a shell script with CRLF endings fails in WSL with
+# "$'\r': command not found".
+* text=auto eol=lf
+*.sh text eol=lf
